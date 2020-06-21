@@ -1,4 +1,4 @@
-import { index } from './core/initState';
+import { initState } from './core/initState';
 import Watcher from './core/observe/watcher';
 import { compiler } from './core/compile/index';
 
@@ -13,7 +13,7 @@ class Vue {
     _init(options){
         let vm = this;
         vm.$options = options;
-        index(vm)
+        initState(vm)
         if(vm.$options.el){
             vm.$mount()
         }
@@ -28,7 +28,7 @@ class Vue {
         }
 
         //监听
-        new Watcher(vm, updateComponent)
+        new Watcher(vm, updateComponent )
     }
 
     _update(){

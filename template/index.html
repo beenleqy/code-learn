@@ -6,15 +6,12 @@
 </head>
 <body>
 <div id="app">
-    <div>{{a}}</div>
-    <div>{{arr}}</div>
-   <div>
-       <p>
-           {{message}}
-       </p>
-   </div>
+    <div>{{sum}}</div>
+    <div>{{a}} </div>
+
 </div>
-<script src="../dist/vue/index.js"></script>
+<!--<script src="../dist/vue/index.js"></script>-->
+<script src="../dist/vue/vue.js"></script>
 <!--<script src="../dist/src/vue/index.js"></script>-->
 <script>
    var vm = new Vue({
@@ -22,22 +19,38 @@
        data(){
            return {
                a: '1233',
-               message: 'hello word',
-               arr: [1,2,3,4]
+               // message: 'hello word',
+               // arr: [1,2,3,4],
+               num1: 2,
+               num2: 3
+           }
+       },
+       computed: {
+           sum(){
+               return this.num1 + this.num2
            }
        }
    })
 setTimeout(() => {
-    vm._data.a = 'aaaaaaaa'
-    vm.arr.push(5)
-    vm.message = 'hello word=======111'
-    console.log(vm, 'vm')
+    vm.num1 = 10
+    setTimeout(() => {
+        vm.num2 = 10
+
+        // vm._data.a = 'aaaaaaaa'
+        // vm.arr.push(5)
+        //
+        // vm.message = 'hello word=======111'
+        // console.log(vm, 'vm')
+        console.log('===============2000s')
+    }, 2000)
+    // vm._data.a = 'aaaaaaaa'
+    // vm.arr.push(5)
+    //
+    // vm.message = 'hello word=======111'
+    // console.log(vm, 'vm')
     console.log('===============2000s')
 }, 2000)
-    // vm._data.a = 23333334
-    // console.log(vm, 'vm')
-   // console.log(m_vue)
-   // console.log(m_vue.a)
+
 
 </script>
 </body>

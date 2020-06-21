@@ -3,7 +3,7 @@
 ### mount(挂载)
 
 ```
-src/core/initState.ts  $mount()
+src/index.ts  $mount()
 ```
 1. 通过传入的el，获取dom元素(document.querySelector)
 2. 封装更新updateComponent，new Watcher(vm, updateComponent)

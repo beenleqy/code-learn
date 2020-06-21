@@ -1,11 +1,9 @@
-interface Target {
-    [propName: string]: any;
-}
+import { remove } from '../util'
 let uid = 0;
 class Dep {
     public id: number;
     public subs: any[] = [];
-    static target : Target | null = null;
+    static target : A_object | null = null;
 
     constructor(){
         this.id = uid++;
@@ -14,14 +12,22 @@ class Dep {
 
     addSubs(dep){
         this.subs.push(dep)
+        let t_subs: any[] = []
+        this.subs.forEach(val => {
+            t_subs.push({...val})
+        })
+        // vm._$subs =
+        console.log(this.subs, '=========this.subs===========')
+    }
+
+    removeSub (sub) {
+        remove(this.subs, sub)
     }
 
     notify(){
-
         this.subs.forEach(watcher => {
             watcher.update()
         })
-
     }
 
     depend(){

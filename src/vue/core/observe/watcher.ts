@@ -1,4 +1,4 @@
-import Dep from './dep';
+import {pushTarget, popTarget} from './dep';
 import { util } from '../compile/compile1.0'
 
 let id = 0;
@@ -7,16 +7,30 @@ class Watcher {
     public expOrFn;
     public cb;
     public id;
-    public deps: any[] = [];
-    public depsId = new Set();
-    public value;
-    public getter;
+    public deps: any[];
+    public newDeps: any[];
+    public depIds;
+    public newDepIds;
+    public value: any;
+    public getter: Function;
+    public lazy;
+    public dirty;
 
-    constructor(vm, expOrFn, cb = () => {}){
+    constructor(vm, expOrFn: string | Function,  cb?: Function, options?: A_object){
         this.vm = vm;
         this.expOrFn = expOrFn;
         this.cb = cb;
         this.id = id++;
+
+        if(options){
+            this.lazy = options.lazy
+            this.dirty = this.lazy
+        }
+
+        this.deps = []
+        this.newDeps = []
+        this.depIds = new Set()
+        this.newDepIds = new Set()
 
         if(typeof expOrFn === 'function'){
             this.getter = expOrFn
@@ -25,26 +39,35 @@ class Watcher {
                 return util.getValue(vm, expOrFn)
             }
         }
-        this.get()
+        this.value = this.lazy? undefined : this.get()
     }
 
     get(){
-        // pushTarget(this)
-        Dep.target = this;
+        pushTarget(this)
+        // Dep.target = this;
         let value = this.getter.call(this.vm)
-        // popTarget()
-        Dep.target = null
+        popTarget()
+        this.cleanupDeps()
+        // Dep.target = null
         return value
     }
 
     addDep(dep){
         let id = dep.id;
-        if( !this.depsId.has(id) ){
-            this.depsId.add(id)
-            this.deps.push(dep)
+        // if( !this.depIds.has(id) ){
+        //     this.depIds.add(id)
+        //     this.deps.push(dep)
+        // }
+
+        if (!this.newDepIds.has(id)) {
+            this.newDepIds.add(id)
+            this.newDeps.push(dep)
+            if (!this.depIds.has(id)) {
+                dep.addSubs(this)
+            }
         }
 
-        dep.addSubs(this)
+
     }
 
 
@@ -52,7 +75,12 @@ class Watcher {
         /**==========简化版 ===========*/
         // this.run()
         /**==========优化版本1.0=============*/
-        queueWatcher(this)
+        if(this.lazy){
+            this.dirty = true
+        }else{
+            queueWatcher(this)
+        }
+
         // this.run()
     }
 
@@ -63,7 +91,41 @@ class Watcher {
             this.cb.call(this.vm, val);
         }
     }
+
+    evalValue(){
+        this.value = this.get()
+        this.dirty = false;
+    }
+
+    depend(){
+       let i = this.deps.length;
+       while(i--){
+           this.deps[i].depend()
+       }
+    }
+
+    cleanupDeps(){
+        let i = this.deps.length;
+        while ( i-- ){
+            let dep = this.deps[i]
+            if(!this.newDepIds.has(dep.id)){
+                dep.removeSub(this)
+            }
+        }
+        let tmp = this.depIds
+        this.depIds = this.newDepIds
+        this.newDepIds = tmp
+        this.newDepIds.clear()
+        tmp = this.deps
+        this.deps = this.newDeps
+        this.newDeps = tmp
+        this.newDeps.length = 0
+    }
+
 }
+
+
+
 
 /**==========优化版本1.0=============*/
 let has = {}
